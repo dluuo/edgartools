@@ -98,8 +98,7 @@ def chunk(html: str):
 
 
 int_item_pattern = r"^(Item [0-9]{1,2}[A-Z]?)\.?"
-decimal_item_pattern = r"^(Item [0-9]{1,2}\.[0-9]{2})\.?"
-
+decimal_item_pattern = r"^(Item\s+[0-9]{1,2}\.[0-9]{2})\.?"
 
 def detect_table_of_contents(text: str):
     """Find the table of contents in the text"""
