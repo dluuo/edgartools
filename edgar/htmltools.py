@@ -248,6 +248,7 @@ def chunks2df(chunks: List[List[Block]],
         : item_structure: A dictionary of items specific to each filing e.g. 8-K, 10-K, 10-Q
     """
     # Create a dataframe from the chunks. Add columns as necessary
+
     chunk_df = pd.DataFrame([{'Text': _render_blocks_using_old_markdown_tables(blocks),
                               'Table': isinstance(blocks, TableBlock)}
                              for blocks in chunks]
@@ -259,6 +260,7 @@ def chunks2df(chunks: List[List[Block]],
                                      Empty=lambda df: df.Text.str.contains('^$', na=True),
                                      Item=lambda df: item_detector(df.Text)
                                      )
+    
     # If the row is 'toc' then set the item and part to empty
     chunk_df.loc[chunk_df.Toc.notnull() & chunk_df.Toc, 'Item'] = ""
     # if item_adjuster:
@@ -273,11 +275,11 @@ def chunks2df(chunks: List[List[Block]],
         chunk_df.Item = chunk_df.Item.fillna(method='ffill')
 
     # After forward fill handle the signature at the bottom
-    signature_rows = chunk_df[chunk_df.Signature]
-    if len(signature_rows) > 0:
-        signature_loc = signature_rows.index[0]
-        chunk_df.loc[signature_loc:, 'Item'] = pd.NA
-        chunk_df.Signature = chunk_df.Signature.fillna("")
+    # signature_rows = chunk_df[chunk_df.Signature]
+    # if len(signature_rows) > 0:
+    #     signature_loc = signature_rows.index[0]
+    #     chunk_df.loc[signature_loc:, 'Item'] = pd.NA
+    #     chunk_df.Signature = chunk_df.Signature.fillna("")
 
     # Fill the Item column with "" then set to title case
     chunk_df.Item = chunk_df.Item.fillna("").str.title()
