@@ -202,9 +202,9 @@ class Financials:
 
         return Statement(
             df=df,
+            definition=statement.definition,
             name=statement.name,
             display_name=standard_statement.display_name,
-            label=statement.label,
             entity=statement.entity
         )
 
@@ -402,7 +402,7 @@ class MultiFinancials:
     Merges the financial statements from multiple periods into a single financials.
     """
 
-    def __init__(self, filings: 'Filings'):
+    def __init__(self, filings):
         self.financials_list = []
         for filing in filings:
             if filing.form not in ['10-K', '10-Q', '10-K/A', '10-Q/A']:
@@ -412,8 +412,7 @@ class MultiFinancials:
         self.primary_financials = self.financials_list[0] if self.financials_list else None
 
     @classmethod
-    async def extract_async(cls, filings: 'Filings') -> 'MultiFinancials':
-        financials_list = []
+    async def extract_async(cls, filings) -> 'MultiFinancials':
         tasks = []
         for filing in filings:
             if filing.form not in ['10-K', '10-Q', '10-K/A', '10-Q/A']:
@@ -429,7 +428,7 @@ class MultiFinancials:
         return multi_financials
 
     @classmethod
-    def extract(cls, filings: 'Filings') -> 'MultiFinancials':
+    def extract(cls, filings) -> 'MultiFinancials':
         return run_async_or_sync(cls.extract_async(filings))
 
 
@@ -444,7 +443,7 @@ class MultiFinancials:
         df1 = df1.reset_index().set_index('label') if df1.index.name != 'label' else df1
 
         # Define metadata columns
-        metadata_cols = ['level', 'abstract', 'units', 'decimals']
+        metadata_cols = ['level', 'abstract', 'units', 'decimals', 'node_type', 'section_end', 'has_dimensions']
 
         # Identify period columns
         period_cols0 = [col for col in df0.columns if col not in metadata_cols and col != 'concept']
@@ -542,9 +541,9 @@ class MultiFinancials:
         # Create a new Statement object
         stitched_statement = Statement(
             df=result_df,
+            definition=base_statement.definition,
             name=base_statement.name,
             display_name=base_statement.display_name,
-            label=base_statement.label,
             entity=base_statement.entity
         )
 
